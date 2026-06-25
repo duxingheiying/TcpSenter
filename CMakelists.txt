@@ -1,0 +1,48 @@
+cmake_minimum_required(VERSION 3.19.0)
+
+project(TSenter VERSION 1.0.0 LANGUAGES CXX C)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
+
+include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/)
+
+# set Qt lib path
+#set(CMAKE_PREFIX_PATH D:/Qt/5.15.2/msvc2019_64/lib/cmake/Qt${QT_VERSION_MAJOR}/)
+
+include(${CMAKE_CURRENT_LIST_DIR}/src/CMakeLists.txt)
+
+
+#install(DIRECTORY fonts/ DESTINATION fonts)
+
+# set control enbale or disable
+if(WIN32)
+set_target_properties( ${PROJECT_NAME}
+    PROPERTIES #LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"  # show window without console in win32
+               LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE" # show window with console in win32
+               LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+               #LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE"
+               LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:windows /ENTRY:mainCRTStartup"
+               LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:windows /ENTRY:mainCRTStartup"
+)
+endif(WIN32)
+
+if(WIN32&&UNIX)
+    add_compile_options("/MP")
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
+	if (NOT ENABLE_FULL_OPTIMIZATION)
+        set(CMAKE_CXX_FLAGS_RELEASE "/Od /Ob0 /Zi /W3 /EHa")
+    else ()
+        set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob2 /Oi /Ot /GL /Zi /W3 /EHa")
+    endif()
+ 
+    set(CMAKE_C_FLAGS_RELEASE "/Od /Zi /W3 /EHa")
+    message("CMAKE_CXX_FLAGS_RELEASE : ${CMAKE_CXX_FLAGS_RELEASE}")
+
+    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
+endif()
